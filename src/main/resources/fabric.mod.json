@@ -1,0 +1,38 @@
+{
+	"schemaVersion": 1,
+	"id": "carlisles-hud",
+	"version": "${version}",
+	"name": "carlisle's Hud",
+	"description": "recreates the hud that you usually see in mc clients",
+	"authors": [
+		"Carlisle!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/carlisles-hud/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"carlisle.carlisleshud.CarlislesHud"
+		],
+		"client": [
+			"carlisle.carlisleshud.client.CarlislesHudClient"
+		]
+	},
+	"mixins": [
+		"carlisles-hud.mixins.json",
+		{
+			"config": "carlisles-hud.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.19.4",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}
