@@ -49,15 +49,15 @@ public class CarlislesHudClient implements ClientModInitializer {
 		int y1 = 10;
 		int y2 = 95;
 		if (2 == config.hudPos) {
-			x1 = 300+10;
-			x2 = 300+150;
+			x1 = 310;
+			x2 = 450;
         }
 		graphics.fill(x1, y1, x2, y2, 0x80000000);
 
 
 		// text
-        Component fpsCounter = Component.literal("FPS: " + String.valueOf(client.getFps()));
-		Component pingCounter = Component.literal("Ping: " + String.valueOf(playerPing(player.getUUID())));
+        Component fpsCounter = Component.literal("FPS: " + client.getFps());
+		Component pingCounter = Component.literal("Ping: " + playerPing(player.getUUID()));
 		Component coordinates = Component.literal("X: " + Math.round(player.getX()) + " Y: " + Math.round(player.getY()) + " Z: " + Math.round(player.getZ()));
 		Component sprintStatus;
 		if (!client.player.isSprinting()) { sprintStatus = Component.literal("Walking"); } else { sprintStatus = Component.literal("Sprinting"); }
@@ -68,7 +68,7 @@ public class CarlislesHudClient implements ClientModInitializer {
 		graphics.text(font, sprintStatus, x1+10, y1+40, 0xFFFFFFFF);
 
 		// icon
-		graphics.blit(RenderPipelines.GUI_TEXTURED, icon, x2/2, y2-20, 0,0,16,16,16,16);
+		graphics.blit(RenderPipelines.GUI_TEXTURED, icon, x2/2+(x1/2), y2-20, 0,0,16,16,16,16);
 	}
 	public static int playerPing(UUID playerUUID) {
 
@@ -82,7 +82,7 @@ public class CarlislesHudClient implements ClientModInitializer {
 
 	public static void getConfig() {
 		if (configFile.exists()) {
-            try (FileReader reader = new FileReader(configFile);) {
+            try (FileReader reader = new FileReader(configFile)) {
 				config = GSON.fromJson(reader, HudConfig.class);
 				if (config == null) {
 					config = new HudConfig();
