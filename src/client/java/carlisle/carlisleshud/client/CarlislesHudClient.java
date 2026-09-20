@@ -23,6 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.lang.Math;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 public class CarlislesHudClient implements ClientModInitializer {
@@ -51,56 +54,69 @@ public class CarlislesHudClient implements ClientModInitializer {
 		if (2 == config.hudPos) {
 			x1 = 310;
 			x2 = 450;
-        }
+		}
 		graphics.fill(x1, y1, x2, y2, 0x80000000);
 
 
 		// text
-        Component fpsCounter = Component.literal("FPS: " + client.getFps());
+		Component fpsCounter = Component.literal("FPS: " + client.getFps());
 		Component pingCounter = Component.literal("Ping: " + playerPing(player.getUUID()));
 		Component coordinates = Component.literal("X: " + Math.round(player.getX()) + " Y: " + Math.round(player.getY()) + " Z: " + Math.round(player.getZ()));
 		Component sprintStatus;
-		if (!client.player.isSprinting()) { sprintStatus = Component.literal("Walking"); } else { sprintStatus = Component.literal("Sprinting"); }
-		if (client.getSingleplayerServer() != null) { pingCounter = Component.literal("Ping: N/A (singleplayer)"); }
-		graphics.text(font, fpsCounter, x1+10, y1+10, 0xFFFFFFFF);
-		graphics.text(font, pingCounter, x1+10, y1+20, 0xFFFFFFFF);
-		graphics.text(font, coordinates, x1+10, y1+30, 0xFFFFFFFF);
-		graphics.text(font, sprintStatus, x1+10, y1+40, 0xFFFFFFFF);
-
+		if (!client.player.isSprinting()) {
+			sprintStatus = Component.literal("Walking");
+		} else {
+			sprintStatus = Component.literal("Sprinting");
+		}
+		if (client.getSingleplayerServer() != null) {
+			pingCounter = Component.literal("Ping: N/A (singleplayer)");
+		}
+		graphics.text(font, fpsCounter, x1 + 10, y1 + 10, 0xFFFFFFFF);
+		graphics.text(font, pingCounter, x1 + 10, y1 + 20, 0xFFFFFFFF);
+		graphics.text(font, coordinates, x1 + 10, y1 + 30, 0xFFFFFFFF);
+		graphics.text(font, sprintStatus, x1 + 10, y1 + 40, 0xFFFFFFFF);
+		graphics.text(font, getTime(), x1 + 10, y1 + 50, 0xFFFFFFFF);
 		// icon
-		graphics.blit(RenderPipelines.GUI_TEXTURED, icon, x2/2+(x1/2), y2-20, 0,0,16,16,16,16);
+		graphics.blit(RenderPipelines.GUI_TEXTURED, icon, x2 / 2 + (x1 / 2), y2 - 20, 0, 0, 16, 16, 16, 16);
 	}
+
 	public static int playerPing(UUID playerUUID) {
 
 		PlayerInfo info = client.getConnection().getPlayerInfo(playerUUID);
-        if (info != null) {
-            return info.getLatency();
-        } else {
-        	return 0;
+		if (info != null) {
+			return info.getLatency();
+		} else {
+			return 0;
 		}
 	}
 
 	public static void getConfig() {
 		if (configFile.exists()) {
-            try (FileReader reader = new FileReader(configFile)) {
+			try (FileReader reader = new FileReader(configFile)) {
 				config = GSON.fromJson(reader, HudConfig.class);
 				if (config == null) {
 					config = new HudConfig();
 				}
-            } catch (IOException e) {
+			} catch (IOException e) {
 				LOGGER.error("Failed to load the config, fallback to defaults.", e);
-            }
+			}
 
 		} else {
 			saveConfig();
 		}
 	}
 
-	public static void saveConfig(){
+	public static void saveConfig() {
 		try (FileWriter writer = new FileWriter(configFile)) {
 			GSON.toJson(config, writer);
 		} catch (IOException e) {
 			LOGGER.error("Could not write or save configuration files.", e);
 		}
+	}
+
+	private static final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm:ss a");
+
+	public static String getTime() {
+		return ZonedDateTime.now(ZoneId.systemDefault()).format(timeFormat);
 	}
 }

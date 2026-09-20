@@ -20,6 +20,9 @@
 		],
 		"client": [
 			"carlisle.carlisleshud.client.CarlislesHudClient"
+		],
+		"modmenu": [
+			"carlisle.carlisleshud.client.config.ModMenuIntegration"
 		]
 	},
 	"mixins": [
