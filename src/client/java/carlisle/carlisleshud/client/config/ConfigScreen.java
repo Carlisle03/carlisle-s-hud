@@ -26,6 +26,11 @@ public class ConfigScreen {
                 .setTooltip(Component.translatable("option.carlisleshud.hudPos.tooltip"))
                 .build());
 
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.carlisleshud.isIconEnabled"), CarlislesHudClient.config.isIconEnabled)
+                        .setDefaultValue(true)
+                        .setSaveConsumer(newValue -> CarlislesHudClient.config.isIconEnabled = newValue)
+                .build());
+
         builder.setSavingRunnable(() -> {
             CarlislesHudClient.saveConfig();
         });

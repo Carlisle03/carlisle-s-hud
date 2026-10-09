@@ -50,7 +50,7 @@ public class CarlislesHudClient implements ClientModInitializer {
 		int x1 = 10;
 		int x2 = 150;
 		int y1 = 10;
-		int y2 = 95;
+		int y2 = 105;
 		if (2 == config.hudPos) {
 			x1 = 310;
 			x2 = 450;
@@ -63,6 +63,10 @@ public class CarlislesHudClient implements ClientModInitializer {
 		Component pingCounter = Component.literal("Ping: " + playerPing(player.getUUID()));
 		Component coordinates = Component.literal("X: " + Math.round(player.getX()) + " Y: " + Math.round(player.getY()) + " Z: " + Math.round(player.getZ()));
 		Component sprintStatus;
+		Component minecraftVersion = Component.literal("Minecraft " + FabricLoader.getInstance().
+				getModContainer("minecraft")
+				.map(container -> container.getMetadata().getVersion().getFriendlyString())
+				.orElse("Unknown") + " (" + client.getLaunchedVersion() + ")");
 		if (!client.player.isSprinting()) {
 			sprintStatus = Component.literal("Walking");
 		} else {
@@ -71,13 +75,18 @@ public class CarlislesHudClient implements ClientModInitializer {
 		if (client.getSingleplayerServer() != null) {
 			pingCounter = Component.literal("Ping: N/A (singleplayer)");
 		}
-		graphics.text(font, fpsCounter, x1 + 10, y1 + 10, 0xFFFFFFFF);
-		graphics.text(font, pingCounter, x1 + 10, y1 + 20, 0xFFFFFFFF);
-		graphics.text(font, coordinates, x1 + 10, y1 + 30, 0xFFFFFFFF);
-		graphics.text(font, sprintStatus, x1 + 10, y1 + 40, 0xFFFFFFFF);
-		graphics.text(font, getTime(), x1 + 10, y1 + 50, 0xFFFFFFFF);
+
+		graphics.text(font, minecraftVersion, x1 + 10, y1 + 10, 0xFFFFFFFF);
+		graphics.text(font, fpsCounter, x1 + 10, y1 + 20, 0xFFFFFFFF);
+		graphics.text(font, pingCounter, x1 + 10, y1 + 30, 0xFFFFFFFF);
+		graphics.text(font, coordinates, x1 + 10, y1 + 40, 0xFFFFFFFF);
+		graphics.text(font, sprintStatus, x1 + 10, y1 + 50, 0xFFFFFFFF);
+		graphics.text(font, getTime(), x1 + 10, y1 + 60, 0xFFFFFFFF);
+
 		// icon
-		graphics.blit(RenderPipelines.GUI_TEXTURED, icon, x2 / 2 + (x1 / 2), y2 - 20, 0, 0, 16, 16, 16, 16);
+		if (config.isIconEnabled) {
+			graphics.blit(RenderPipelines.GUI_TEXTURED, icon, x2 / 2 + (x1 / 2), y2 - 20, 0, 0, 16, 16, 16, 16);
+		}
 	}
 
 	public static int playerPing(UUID playerUUID) {
