@@ -52,8 +52,8 @@ public class CarlislesHudClient implements ClientModInitializer {
 		int y1 = 10;
 		int y2 = 105;
 		if (2 == config.hudPos) {
-			x1 = 310;
-			x2 = 450;
+			x1 = client.getWindow().getGuiScaledWidth() - 150;
+			x2 = client.getWindow().getGuiScaledWidth() - 10;
 		}
 		graphics.fill(x1, y1, x2, y2, 0x80000000);
 
