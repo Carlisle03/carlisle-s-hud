@@ -66,7 +66,7 @@ public class CarlislesHudClient implements ClientModInitializer {
 		Component minecraftVersion = Component.literal("Minecraft " + FabricLoader.getInstance().
 				getModContainer("minecraft")
 				.map(container -> container.getMetadata().getVersion().getFriendlyString())
-				.orElse("Unknown") + " (" + client.getLaunchedVersion() + ")");
+				.orElse("Unknown"));
 		if (!client.player.isSprinting()) {
 			sprintStatus = Component.literal("Walking");
 		} else {
