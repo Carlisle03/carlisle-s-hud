@@ -14,7 +14,4 @@ public class CarlislesHud implements ModInitializer {
 	public void onInitialize() {
 		LOGGER.info("Carlisle's HUD ready");
 	}
-	public static Identifier id(String path) {
-		return Identifier.fromNamespaceAndPath(MOD_ID, path);
-	}
 }
