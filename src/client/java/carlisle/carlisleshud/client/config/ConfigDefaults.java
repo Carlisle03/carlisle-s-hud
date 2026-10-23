@@ -1,6 +1,7 @@
-package carlisle.carlisleshud.client;
+package carlisle.carlisleshud.client.config;
 
 public class ConfigDefaults {
     public int hudPos = 1;
-    public boolean isWAILAEnable = true;
+    public boolean isWAILAEnabled = true;
+    public boolean is12HourFormat = false;
 }

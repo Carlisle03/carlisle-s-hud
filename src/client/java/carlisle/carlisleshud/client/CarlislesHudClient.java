@@ -1,11 +1,10 @@
 package carlisle.carlisleshud.client;
 
 import carlisle.carlisleshud.CarlislesHud;
-import carlisle.carlisleshud.client.HudConfig;
+import carlisle.carlisleshud.client.config.ConfigDefaults;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.fabricmc.loader.api.FabricLoader;
@@ -13,11 +12,15 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +37,7 @@ public class CarlislesHudClient implements ClientModInitializer {
 	public static final File configFile = FabricLoader.getInstance().getConfigDir().resolve("carlisles-hud.json").toFile();
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
-	public static HudConfig config = new HudConfig();
+	public static ConfigDefaults config = new ConfigDefaults();
 
 	@Override
 	public void onInitializeClient() {
@@ -42,50 +45,63 @@ public class CarlislesHudClient implements ClientModInitializer {
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, Identifier.fromNamespaceAndPath(CarlislesHud.MOD_ID, "before_chat"), CarlislesHudClient::extract);
 	}
 
-	public static void extract(GuiGraphicsExtractor graphics, DeltaTracker tickCounter) {
+	public static void extract(GuiGraphicsExtractor graphics, DeltaTracker tick) {
 		Font font = client.font;
 		Player player = client.player;
-		Identifier icon = Identifier.fromNamespaceAndPath(CarlislesHud.MOD_ID, "textures/icon.png");
-		// hud background
-		int x1 = 10;
-		int x2 = 150;
-		int y1 = 10;
-		int y2 = 105;
-		if (2 == config.hudPos) {
-			x1 = client.getWindow().getGuiScaledWidth() - 150;
-			x2 = client.getWindow().getGuiScaledWidth() - 10;
-		}
-		graphics.fill(x1, y1, x2, y2, 0x80000000);
 
+		if (!client.getDebugOverlay().showDebugScreen()) {
+			// hud background
+			int tx1 = 10;
+			int ty1 = 10;
+			if (1 == config.hudPos) {
+				tx1 = 10;
+			} else if (2 == config.hudPos) {
+				tx1 = client.getWindow().getGuiScaledWidth() - 150;
+			}
 
-		// text
-		Component fpsCounter = Component.literal("FPS: " + client.getFps());
-		Component pingCounter = Component.literal("Ping: " + playerPing(player.getUUID()));
-		Component coordinates = Component.literal("X: " + Math.round(player.getX()) + " Y: " + Math.round(player.getY()) + " Z: " + Math.round(player.getZ()));
-		Component sprintStatus;
-		Component minecraftVersion = Component.literal("Minecraft " + FabricLoader.getInstance().
-				getModContainer("minecraft")
-				.map(container -> container.getMetadata().getVersion().getFriendlyString())
-				.orElse("Unknown"));
-		if (!client.player.isSprinting()) {
-			sprintStatus = Component.literal("Walking");
-		} else {
-			sprintStatus = Component.literal("Sprinting");
-		}
-		if (client.getSingleplayerServer() != null) {
-			pingCounter = Component.literal("Ping: N/A (singleplayer)");
-		}
+			// text
+			Component fpsCounter = Component.literal("FPS: " + client.getFps());
+			Component pingCounter = Component.literal("Ping: " + playerPing(player.getUUID()));
+			Component coordinates = Component.literal("X: " + Math.round(player.getX()) + " Y: " + Math.round(player.getY()) + " Z: " + Math.round(player.getZ()));
+			Component sprintStatus;
+			Component minecraftVersion = Component.literal("Minecraft " + FabricLoader.getInstance().
+					getModContainer("minecraft")
+					.map(container -> container.getMetadata().getVersion().getFriendlyString())
+					.orElse("Unknown"));
 
-		graphics.text(font, minecraftVersion, x1 + 10, y1 + 10, 0xFFFFFFFF);
-		graphics.text(font, fpsCounter, x1 + 10, y1 + 20, 0xFFFFFFFF);
-		graphics.text(font, pingCounter, x1 + 10, y1 + 30, 0xFFFFFFFF);
-		graphics.text(font, coordinates, x1 + 10, y1 + 40, 0xFFFFFFFF);
-		graphics.text(font, sprintStatus, x1 + 10, y1 + 50, 0xFFFFFFFF);
-		graphics.text(font, getTime(), x1 + 10, y1 + 60, 0xFFFFFFFF);
+			if (!client.player.isSprinting()) {
+				sprintStatus = Component.literal("Walking");
+			} else {
+				sprintStatus = Component.literal("Sprinting");
+			}
+			if (client.getSingleplayerServer() != null) {
+				pingCounter = Component.literal("Ping: N/A (singleplayer)");
+			}
 
-		// icon
-		if (config.isIconEnabled) {
-			graphics.blit(RenderPipelines.GUI_TEXTURED, icon, x2 / 2 + (x1 / 2), y2 - 20, 0, 0, 16, 16, 16, 16);
+			graphics.text(font, minecraftVersion, tx1 + 10, ty1 + 10, 0xFFFFFFFF);
+			graphics.text(font, fpsCounter, tx1 + 10, ty1 + 20, 0xFFFFFFFF);
+			graphics.text(font, pingCounter, tx1 + 10, ty1 + 30, 0xFFFFFFFF);
+			graphics.text(font, coordinates, tx1 + 10, ty1 + 40, 0xFFFFFFFF);
+			graphics.text(font, sprintStatus, tx1 + 10, ty1 + 50, 0xFFFFFFFF);
+			graphics.text(font, getTime(), tx1 + 10, ty1 + 60, 0xFFFFFFFF);
+
+			// waila
+			HitResult hit = client.hitResult;
+			Component block = Component.literal("");
+			ItemStack item = ItemStack.EMPTY;
+			if (hit != null && hit.getType() != HitResult.Type.ENTITY) {
+				BlockHitResult blockHit = (BlockHitResult) hit;
+				BlockPos pos = blockHit.getBlockPos();
+				BlockState blockState = client.level.getBlockState(pos);
+				block = blockState.getBlock().getName();
+				item = blockState.getBlock().asItem().getDefaultInstance();
+			}
+			int bx = client.getWindow().getGuiScaledWidth() / 2;
+			int by = 10;
+			if (config.isWAILAEnabled){
+				graphics.text(font, block, bx, by + 10, 0xFFFFFFFF);
+				graphics.fakeItem(item, bx - 15, by);
+			}
 		}
 	}
 
@@ -102,9 +118,9 @@ public class CarlislesHudClient implements ClientModInitializer {
 	public static void getConfig() {
 		if (configFile.exists()) {
 			try (FileReader reader = new FileReader(configFile)) {
-				config = GSON.fromJson(reader, HudConfig.class);
+				config = GSON.fromJson(reader, ConfigDefaults.class);
 				if (config == null) {
-					config = new HudConfig();
+					config = new ConfigDefaults();
 				}
 			} catch (IOException e) {
 				LOGGER.error("Failed to load the config, fallback to defaults.", e);
@@ -123,9 +139,11 @@ public class CarlislesHudClient implements ClientModInitializer {
 		}
 	}
 
-	private static final DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm:ss a");
-
 	public static String getTime() {
+		DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm:ss a ");
+		if (config.is12HourFormat) {
+			timeFormat = DateTimeFormatter.ofPattern("hh:mm:ss a");
+		}
 		return ZonedDateTime.now(ZoneId.systemDefault()).format(timeFormat);
 	}
 }

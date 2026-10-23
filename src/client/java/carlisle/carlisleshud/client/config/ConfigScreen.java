@@ -12,8 +12,7 @@ public class ConfigScreen {
 
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
-                .setTitle(Component.translatable("title.carlisleshud.config"))
-                .solidBackground();
+                .setTitle(Component.translatable("title.carlisleshud.config"));
 
         ConfigCategory general = builder.getOrCreateCategory(Component.translatable("category.carlisleshud.general"));
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
@@ -26,9 +25,14 @@ public class ConfigScreen {
                 .setTooltip(Component.translatable("option.carlisleshud.hudPos.tooltip"))
                 .build());
 
-        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.carlisleshud.isIconEnabled"), CarlislesHudClient.config.isIconEnabled)
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.carlisleshud.isIconEnabled"), CarlislesHudClient.config.isWAILAEnabled)
                         .setDefaultValue(true)
-                        .setSaveConsumer(newValue -> CarlislesHudClient.config.isIconEnabled = newValue)
+                        .setSaveConsumer(newValue -> CarlislesHudClient.config.isWAILAEnabled = newValue)
+                .build());
+
+        general.addEntry(entryBuilder.startBooleanToggle(Component.translatable("option.carlisleshud.is12HourFormat"), CarlislesHudClient.config.is12HourFormat)
+                .setDefaultValue(false)
+                .setSaveConsumer(newValue -> CarlislesHudClient.config.is12HourFormat = newValue)
                 .build());
 
         builder.setSavingRunnable(() -> {
